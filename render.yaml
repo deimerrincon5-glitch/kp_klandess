@@ -1,0 +1,14 @@
+# Render configuration for SPA with React Router
+# This ensures all routes redirect to index.html for client-side routing
+
+services:
+  - type: web
+    name: velas-artesanales-app
+    env: static
+    buildCommand: npm install && npm run build
+    publishDirectory: dist
+    # SPA routing - redirect all routes to index.html
+    routes:
+      - type: rewrite
+        source: /(.*)*
+        destination: /index.html
