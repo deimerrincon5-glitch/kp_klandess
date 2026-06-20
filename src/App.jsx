@@ -49,7 +49,7 @@ function AppContent() {
         alertsCount={dashboardData.pedidosEntregaProximaCount}
       />
       
-      <main className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
+      <main id="main-content" className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`} tabIndex={-1}>
         <Header 
           companyName={companyName} 
           alertsCount={dashboardData.pedidosEntregaProximaCount}

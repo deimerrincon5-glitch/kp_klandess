@@ -11,8 +11,13 @@ const Input = React.forwardRef(({
   label,
   helperText,
   icon: Icon,
+  id,
   ...props 
 }, ref) => {
+  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`
+  const helperTextId = `${inputId}-helper`
+  const errorId = `${inputId}-error`
+  
   const baseStyles = 'w-full rounded-lg border transition-base focus:outline-none disabled:bg-neutral-100 disabled:cursor-not-allowed'
   
   const sizes = {
@@ -38,7 +43,7 @@ const Input = React.forwardRef(({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-neutral-700 mb-1">
+        <label htmlFor={inputId} className="block text-sm font-medium text-neutral-700 mb-1">
           {label}
           {props.required && <span className="text-error-500 ml-1">*</span>}
         </label>
@@ -48,23 +53,30 @@ const Input = React.forwardRef(({
           <Icon 
             size={size === 'sm' ? 16 : size === 'lg' ? 24 : 20} 
             className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"
+            aria-hidden="true"
           />
         )}
         <input
           ref={ref}
+          id={inputId}
           type={type}
           className={inputStyles}
           disabled={disabled}
+          aria-describedby={cn(
+            helperText && helperTextId,
+            error && errorId
+          )}
+          aria-invalid={!!error}
           {...props}
         />
       </div>
       {helperText && (
-        <p className={cn('text-xs mt-1', error ? 'text-error-500' : 'text-neutral-500')}>
+        <p id={helperTextId} className={cn('text-xs mt-1', error ? 'text-error-500' : 'text-neutral-500')}>
           {helperText}
         </p>
       )}
       {error && (
-        <p className="text-xs text-error-500 mt-1">{error}</p>
+        <p id={errorId} className="text-xs text-error-500 mt-1" role="alert">{error}</p>
       )}
     </div>
   )
