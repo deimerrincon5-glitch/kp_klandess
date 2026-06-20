@@ -240,7 +240,7 @@ export default function Pedidos() {
       </div>
 
       {/* Resumen Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
         <Card variant="elevated" padding="md">
           <p className="text-sm font-medium text-neutral-500 mb-1">Pedidos Activos</p>
           <p className="text-2xl font-bold text-neutral-900">{resumen.pedidosActivosCount}</p>

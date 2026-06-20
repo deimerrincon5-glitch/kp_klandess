@@ -596,7 +596,7 @@ function Modal({ children, onClose }) {
   return (
     <div className="fixed inset-0 bg-neutral-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
       <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-scale-in">
-        <div className="p-6">
+        <div className="p-4 md:p-6">
           {children}
         </div>
       </div>

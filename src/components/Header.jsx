@@ -2,10 +2,10 @@ import React from 'react'
 import { useLocation, Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Bell, Search, User, ChevronRight } from 'lucide-react'
+import { Bell, Search, User, ChevronRight, Menu } from 'lucide-react'
 import { cn } from '../utils/cn'
 
-export default function Header({ companyName, alertsCount }) {
+export default function Header({ companyName, alertsCount, onMobileMenuClick }) {
   const location = useLocation()
   const today = format(new Date(), "EEEE, d 'de' MMMM 'de' yyyy", { locale: es })
 
@@ -44,13 +44,22 @@ export default function Header({ companyName, alertsCount }) {
   const breadcrumbs = generateBreadcrumbs()
 
   return (
-    <header className="h-16 bg-white border-b border-neutral-200 px-6 flex items-center justify-between shadow-sm">
+    <header className="h-16 bg-white border-b border-neutral-200 px-4 md:px-6 flex items-center justify-between shadow-sm">
       <div className="flex items-center gap-4">
+        {/* Mobile Menu Button */}
+        <button
+          onClick={onMobileMenuClick}
+          className="lg:hidden p-2 hover:bg-neutral-100 rounded-lg transition-base"
+          aria-label="Open menu"
+        >
+          <Menu size={20} className="text-neutral-600" />
+        </button>
+
         {/* Breadcrumbs */}
         <nav className="flex items-center text-sm" aria-label="Breadcrumb">
           {breadcrumbs.map((crumb, index) => (
             <React.Fragment key={crumb.path}>
-              {index > 0 && <ChevronRight size={16} className="text-neutral-400 mx-2" />}
+              {index > 0 && <ChevronRight size={16} className="text-neutral-400 mx-2 hidden sm:block" />}
               {index === breadcrumbs.length - 1 ? (
                 <span className="font-heading font-semibold text-neutral-900">{crumb.label}</span>
               ) : (
@@ -63,7 +72,7 @@ export default function Header({ companyName, alertsCount }) {
         </nav>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 md:gap-4">
         {/* Global Search */}
         <div className="relative hidden md:block">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={18} />

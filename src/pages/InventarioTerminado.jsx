@@ -86,7 +86,7 @@ export default function InventarioTerminado() {
       </div>
 
       {/* Resumen Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
         <Card variant="elevated" padding="md">
           <p className="text-sm font-medium text-neutral-500 mb-1">Valor Total Inventario</p>
           <p className="text-2xl font-bold text-neutral-900">{formatCurrency(resumen.valorTotal)}</p>
@@ -183,7 +183,7 @@ export default function InventarioTerminado() {
                 ))}
               </select>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-neutral-700 mb-1">Cantidad a Producir *</label>
                 <Input
@@ -282,7 +282,7 @@ function Modal({ children, onClose }) {
   return (
     <div className="fixed inset-0 bg-neutral-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
       <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto animate-scale-in">
-        <div className="p-6">
+        <div className="p-4 md:p-6">
           {children}
         </div>
       </div>

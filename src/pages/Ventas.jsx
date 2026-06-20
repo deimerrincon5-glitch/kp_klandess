@@ -180,7 +180,7 @@ export default function Ventas() {
       </div>
 
       {/* Resumen Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <Card variant="elevated" padding="md">
           <div className="flex items-center gap-3 mb-2">
             <div className="bg-primary-100 p-2 rounded-lg">
@@ -220,7 +220,7 @@ export default function Ventas() {
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         <Card variant="elevated" padding="md">
           <h3 className="font-heading text-xl font-semibold text-neutral-900 mb-4">
             Ventas por Mes (Últimos 6 meses)
@@ -451,7 +451,7 @@ function Modal({ children, onClose }) {
   return (
     <div className="fixed inset-0 bg-neutral-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
       <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto animate-scale-in">
-        <div className="p-6">
+        <div className="p-4 md:p-6">
           {children}
         </div>
       </div>

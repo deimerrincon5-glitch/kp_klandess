@@ -20,6 +20,7 @@ import Finanzas from './pages/Finanzas'
 function AppContent() {
   const [splashVisible, setSplashVisible] = useState(true)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const { initializeApp, toasts, companyName, dashboardData } = useApp()
 
   useEffect(() => {
@@ -43,16 +44,19 @@ function AppContent() {
       <Sidebar 
         collapsed={sidebarCollapsed} 
         setSidebarCollapsed={setSidebarCollapsed}
+        mobileOpen={mobileSidebarOpen}
+        setMobileOpen={setMobileSidebarOpen}
         alertsCount={dashboardData.pedidosEntregaProximaCount}
       />
       
-      <main className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+      <main className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <Header 
           companyName={companyName} 
           alertsCount={dashboardData.pedidosEntregaProximaCount}
+          onMobileMenuClick={() => setMobileSidebarOpen(true)}
         />
         
-        <div className="p-6">
+        <div className="p-4 md:p-6">
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/materia-prima" element={<MateriaPrima />} />
