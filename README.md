@@ -84,7 +84,15 @@ Este proyecto **no requiere variables de entorno**. No es necesario configurar n
 
 ### Configuración de SPA
 
-El archivo `render.yaml` incluido en el proyecto configura automáticamente las redirecciones para que las rutas de React Router funcionen correctamente al refrescar la página. No requiere configuración adicional.
+Para que las rutas de React Router funcionen correctamente al refrescar la página, configura los rewrites en Render:
+
+1. Ve a tu servicio en Render
+2. Abre Settings
+3. Busca Redirects/Rewrites
+4. Agrega:
+   - **Source**: `/*`
+   - **Destination**: `/index.html`
+   - **Action**: Rewrite
 
 ## 📝 Reglas de Negocio
 
