@@ -2,6 +2,10 @@ import React, { useState, useMemo } from 'react'
 import { useApp } from '../context/AppContext'
 import { formatCurrency } from '../utils/format'
 import { Plus, Edit, Trash2, Search, CandlestickChart, X } from 'lucide-react'
+import Button from '../components/ui/Button'
+import Input from '../components/ui/Input'
+import { Card, CardHeader, CardTitle, CardBody } from '../components/ui/Card'
+import Badge from '../components/ui/Badge'
 
 const CATEGORIAS = ['Vela de soja', 'Vela de parafina', 'Vela de cera de abeja', 'Vela decorativa', 'Set / Kit', 'Otro']
 
@@ -149,47 +153,48 @@ export default function Productos() {
   const precioMinimoSugerido = costoProduccion * 1.35
 
   const getMargenColor = (margen) => {
-    if (margen >= 40) return 'text-green-600'
-    if (margen >= 25) return 'text-yellow-600'
-    return 'text-red-600'
+    if (margen >= 40) return 'text-success-600'
+    if (margen >= 25) return 'text-warning-600'
+    return 'text-error-600'
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-playfair text-3xl font-bold text-amber-900">Catálogo de Productos + Recetas</h1>
-        <button
+        <div>
+          <h1 className="font-display text-3xl font-bold text-neutral-900">Catálogo de Productos + Recetas</h1>
+          <p className="text-neutral-500 mt-1">Gestiona tus productos y recetas de fabricación</p>
+        </div>
+        <Button
           onClick={() => openModal()}
-          className="flex items-center gap-2 bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 transition-colors"
+          icon={Plus}
         >
-          <Plus size={18} />
           Agregar Producto
-        </button>
+        </Button>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-sm p-4 flex flex-wrap gap-4 items-center">
-        <div className="flex-1 min-w-64">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input
+      <Card variant="elevated" padding="md">
+        <div className="flex flex-wrap gap-4 items-center">
+          <div className="flex-1 min-w-64">
+            <Input
               type="text"
               placeholder="Buscar producto..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+              icon={Search}
             />
           </div>
+          <select
+            value={filterCategoria}
+            onChange={(e) => setFilterCategoria(e.target.value)}
+            className="px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
+          >
+            <option value="">Todas las categorías</option>
+            {CATEGORIAS.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+          </select>
         </div>
-        <select
-          value={filterCategoria}
-          onChange={(e) => setFilterCategoria(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
-        >
-          <option value="">Todas las categorías</option>
-          {CATEGORIAS.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-        </select>
-      </div>
+      </Card>
 
       {/* Product Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -203,7 +208,7 @@ export default function Productos() {
           />
         ))}
         {filteredItems.length === 0 && (
-          <div className="col-span-full text-center py-12 text-gray-500">
+          <div className="col-span-full text-center py-12 text-neutral-500">
             No se encontraron productos
           </div>
         )}
@@ -212,77 +217,73 @@ export default function Productos() {
       {/* Modal */}
       {showModal && (
         <Modal onClose={() => { setShowModal(false); setEditingItem(null); resetFormData() }}>
-          <h2 className="font-playfair text-xl font-semibold text-amber-900 mb-4">
+          <h2 className="font-heading text-xl font-semibold text-neutral-900 mb-4">
             {editingItem ? 'Editar Producto' : 'Agregar Producto'}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4 max-h-[80vh] overflow-y-auto pr-2">
             {/* Datos Básicos */}
-            <div className="border-b border-gray-200 pb-4">
-              <h3 className="font-medium text-gray-900 mb-3">Datos Básicos</h3>
+            <div className="border-b border-neutral-200 pb-4">
+              <h3 className="font-heading font-medium text-neutral-900 mb-3">Datos Básicos</h3>
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del Producto *</label>
-                  <input
+                  <label className="block text-sm font-medium text-neutral-700 mb-1">Nombre del Producto *</label>
+                  <Input
                     type="text"
                     value={formData.nombre_producto}
                     onChange={(e) => setFormData(prev => ({ ...prev, nombre_producto: e.target.value }))}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                  <label className="block text-sm font-medium text-neutral-700 mb-1">Descripción</label>
                   <textarea
                     value={formData.descripcion}
                     onChange={(e) => setFormData(prev => ({ ...prev, descripcion: e.target.value }))}
                     rows={2}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Categoría *</label>
+                    <label className="block text-sm font-medium text-neutral-700 mb-1">Categoría *</label>
                     <select
                       value={formData.categoria}
                       onChange={(e) => setFormData(prev => ({ ...prev, categoria: e.target.value }))}
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                      className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
                     >
                       {CATEGORIAS.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Tiempo Producción (min)</label>
-                    <input
+                    <label className="block text-sm font-medium text-neutral-700 mb-1">Tiempo Producción (min)</label>
+                    <Input
                       type="number"
                       value={formData.tiempo_produccion_minutos}
                       onChange={(e) => setFormData(prev => ({ ...prev, tiempo_produccion_minutos: parseFloat(e.target.value) || 0 }))}
                       min="0"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
                     />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Precio Venta (COP) *</label>
-                    <input
+                    <label className="block text-sm font-medium text-neutral-700 mb-1">Precio Venta (COP) *</label>
+                    <Input
                       type="number"
                       value={formData.precio_venta}
                       onChange={(e) => setFormData(prev => ({ ...prev, precio_venta: parseFloat(e.target.value) || 0 }))}
                       min="0"
                       step="100"
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">URL Imagen (opcional)</label>
-                    <input
+                    <label className="block text-sm font-medium text-neutral-700 mb-1">URL Imagen (opcional)</label>
+                    <Input
                       type="text"
                       value={formData.imagen_url}
                       onChange={(e) => setFormData(prev => ({ ...prev, imagen_url: e.target.value }))}
                       placeholder="https://..."
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
                     />
                   </div>
                 </div>
@@ -290,39 +291,39 @@ export default function Productos() {
             </div>
 
             {/* Receta */}
-            <div className="border-b border-gray-200 pb-4">
-              <h3 className="font-medium text-gray-900 mb-3">Receta de Fabricación</h3>
+            <div className="border-b border-neutral-200 pb-4">
+              <h3 className="font-heading font-medium text-neutral-900 mb-3">Receta de Fabricación</h3>
               <div className="space-y-2">
                 {formData.receta.map((ingrediente, index) => {
                   const insumo = insumosActivos.find(mp => mp.id === ingrediente.insumo_id)
                   const costoParcial = insumo ? ingrediente.cantidad_usada * insumo.costo_por_unidad : 0
                   return (
-                    <div key={index} className="flex gap-2 items-start bg-gray-50 p-3 rounded-lg">
+                    <div key={index} className="flex gap-2 items-start bg-neutral-50 p-3 rounded-lg">
                       <select
                         value={ingrediente.insumo_id}
                         onChange={(e) => updateIngrediente(index, 'insumo_id', e.target.value)}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500"
+                        className="flex-1 px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
                       >
                         <option value="">Seleccionar insumo...</option>
                         {insumosActivos.map(mp => (
                           <option key={mp.id} value={mp.id}>{mp.nombre} ({mp.unidad_medida})</option>
                         ))}
                       </select>
-                      <input
+                      <Input
                         type="number"
                         value={ingrediente.cantidad_usada}
                         onChange={(e) => updateIngrediente(index, 'cantidad_usada', parseFloat(e.target.value) || 0)}
                         placeholder="Cantidad"
                         min="0"
                         step="0.01"
-                        className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500"
+                        className="w-24"
                       />
-                      <span className="text-sm text-gray-600 py-2">{insumo?.unidad_medida || ''}</span>
-                      <span className="text-sm text-gray-900 font-medium py-2">{formatCurrency(costoParcial)}</span>
+                      <span className="text-sm text-neutral-600 py-2">{insumo?.unidad_medida || ''}</span>
+                      <span className="text-sm text-neutral-900 font-medium py-2">{formatCurrency(costoParcial)}</span>
                       <button
                         type="button"
                         onClick={() => removeIngrediente(index)}
-                        className="text-red-600 hover:text-red-800 p-1"
+                        className="text-error-600 hover:text-error-800 p-1 hover:bg-error-50 rounded transition-base"
                       >
                         <X size={18} />
                       </button>
@@ -332,54 +333,51 @@ export default function Productos() {
                 <button
                   type="button"
                   onClick={addIngrediente}
-                  className="text-amber-600 hover:text-amber-800 text-sm font-medium"
+                  className="text-primary-600 hover:text-primary-800 text-sm font-medium"
                 >
                   + Agregar ingrediente
                 </button>
               </div>
               
               {/* Resumen de costos */}
-              <div className="mt-4 bg-amber-50 p-4 rounded-lg space-y-2">
+              <div className="mt-4 bg-primary-50 p-4 rounded-lg border border-primary-200 space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Costo Producción:</span>
-                  <span className="font-medium">{formatCurrency(costoProduccion)}</span>
+                  <span className="text-neutral-600">Costo Producción:</span>
+                  <span className="font-medium text-neutral-900">{formatCurrency(costoProduccion)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Margen Estimado:</span>
+                  <span className="text-neutral-600">Margen Estimado:</span>
                   <span className={`font-medium ${getMargenColor(margenEstimado)}`}>{margenEstimado.toFixed(1)}%</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Precio Mínimo Sugerido:</span>
-                  <span className="font-medium">{formatCurrency(precioMinimoSugerido)}</span>
+                  <span className="text-neutral-600">Precio Mínimo Sugerido:</span>
+                  <span className="font-medium text-neutral-900">{formatCurrency(precioMinimoSugerido)}</span>
                 </div>
               </div>
             </div>
 
             {/* Notas */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Notas de Fabricación</label>
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Notas de Fabricación</label>
               <textarea
                 value={formData.notas_fabricacion}
                 onChange={(e) => setFormData(prev => ({ ...prev, notas_fabricacion: e.target.value }))}
                 rows={3}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
               />
             </div>
 
             <div className="flex justify-end gap-3 pt-4">
-              <button
+              <Button
                 type="button"
+                variant="secondary"
                 onClick={() => { setShowModal(false); setEditingItem(null); resetFormData() }}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 Cancelar
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700"
-              >
+              </Button>
+              <Button type="submit">
                 {editingItem ? 'Actualizar' : 'Agregar'}
-              </button>
+              </Button>
             </div>
           </form>
         </Modal>
@@ -390,56 +388,58 @@ export default function Productos() {
 
 function ProductCard({ item, onEdit, onDelete, getMargenColor }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+    <Card variant="elevated" padding="none" className="overflow-hidden hover:shadow-lg transition-base">
       {item.imagen_url ? (
         <img src={item.imagen_url} alt={item.nombre_producto} className="w-full h-48 object-cover" />
       ) : (
-        <div className="w-full h-48 bg-amber-100 flex items-center justify-center">
-          <CandlestickChart size={48} className="text-amber-400" />
+        <div className="w-full h-48 bg-primary-100 flex items-center justify-center">
+          <CandlestickChart size={48} className="text-primary-400" />
         </div>
       )}
       <div className="p-4">
         <div className="flex items-start justify-between mb-2">
-          <h3 className="font-medium text-gray-900">{item.nombre_producto}</h3>
-          <span className="text-xs px-2 py-1 bg-amber-100 text-amber-800 rounded-full">{item.categoria}</span>
+          <h3 className="font-heading font-medium text-neutral-900">{item.nombre_producto}</h3>
+          <Badge variant="primary">{item.categoria}</Badge>
         </div>
         <div className="space-y-1 text-sm">
           <div className="flex justify-between">
-            <span className="text-gray-600">Precio Venta:</span>
-            <span className="font-medium">{formatCurrency(item.precio_venta)}</span>
+            <span className="text-neutral-600">Precio Venta:</span>
+            <span className="font-heading font-medium text-neutral-900">{formatCurrency(item.precio_venta)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">Costo Producción:</span>
-            <span className="font-medium">{formatCurrency(item.costo_produccion)}</span>
+            <span className="text-neutral-600">Costo Producción:</span>
+            <span className="font-heading font-medium text-neutral-900">{formatCurrency(item.costo_produccion)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">Margen:</span>
-            <span className={`font-medium ${getMargenColor(item.margen_utilidad)}`}>{item.margen_utilidad.toFixed(1)}%</span>
+            <span className="text-neutral-600">Margen:</span>
+            <span className={`font-heading font-medium ${getMargenColor(item.margen_utilidad)}`}>{item.margen_utilidad.toFixed(1)}%</span>
           </div>
         </div>
-        <div className="flex gap-2 mt-4 pt-4 border-t border-gray-200">
-          <button
+        <div className="flex gap-2 mt-4 pt-4 border-t border-neutral-200">
+          <Button
             onClick={onEdit}
-            className="flex-1 text-blue-600 hover:text-blue-800 text-sm font-medium py-1"
+            variant="ghost"
+            className="flex-1"
           >
             Editar
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={onDelete}
-            className="flex-1 text-red-600 hover:text-red-800 text-sm font-medium py-1"
+            variant="ghost"
+            className="flex-1 text-error-600 hover:text-error-800"
           >
             Eliminar
-          </button>
+          </Button>
         </div>
       </div>
-    </div>
+    </Card>
   )
 }
 
 function Modal({ children, onClose }) {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-neutral-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-scale-in">
         <div className="p-6">
           {children}
         </div>

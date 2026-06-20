@@ -39,14 +39,14 @@ function AppContent() {
   }
 
   return (
-    <div className="min-h-screen bg-amber-50">
+    <div className="min-h-screen bg-neutral-50">
       <Sidebar 
         collapsed={sidebarCollapsed} 
         setSidebarCollapsed={setSidebarCollapsed}
         alertsCount={dashboardData.pedidosEntregaProximaCount}
       />
       
-      <main className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-20' : 'ml-64'}`}>
+      <main className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Header 
           companyName={companyName} 
           alertsCount={dashboardData.pedidosEntregaProximaCount}

@@ -3,6 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { formatCurrency, formatDate, addDaysToDate, getCurrentDateISO } from '../utils/format'
 import { Plus, Edit, Trash2, Search, FileText, Check, X, Printer, Send, ShoppingCart } from 'lucide-react'
+import Button from '../components/ui/Button'
+import Input from '../components/ui/Input'
+import { Card, CardHeader, CardTitle, CardBody } from '../components/ui/Card'
+import Badge from '../components/ui/Badge'
 
 const ESTADOS = ['Borrador', 'Enviada', 'Aprobada', 'Rechazada', 'Vencida']
 
@@ -166,14 +170,14 @@ export default function Cotizaciones() {
   const { subtotal, iva, total } = calculateTotals()
 
   const getEstadoBadge = (estado) => {
-    const colors = {
-      'Borrador': 'bg-gray-100 text-gray-800',
-      'Enviada': 'bg-blue-100 text-blue-800',
-      'Aprobada': 'bg-green-100 text-green-800',
-      'Rechazada': 'bg-red-100 text-red-800',
-      'Vencida': 'bg-orange-100 text-orange-800'
+    const variants = {
+      'Borrador': 'secondary',
+      'Enviada': 'info',
+      'Aprobada': 'success',
+      'Rechazada': 'error',
+      'Vencida': 'warning'
     }
-    return <span className={`px-2 py-1 text-xs rounded-full ${colors[estado]}`}>{estado}</span>
+    return <Badge variant={variants[estado]}>{estado}</Badge>
   }
 
   const getEstadoActions = (cotizacion) => {
@@ -234,115 +238,118 @@ export default function Cotizaciones() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-playfair text-3xl font-bold text-amber-900">Cotizaciones</h1>
-        <button
+        <div>
+          <h1 className="font-display text-3xl font-bold text-neutral-900">Cotizaciones</h1>
+          <p className="text-neutral-500 mt-1">Gestiona tus cotizaciones y propuestas</p>
+        </div>
+        <Button
           onClick={() => openModal()}
-          className="flex items-center gap-2 bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 transition-colors"
+          icon={Plus}
         >
-          <Plus size={18} />
           Nueva Cotización
-        </button>
+        </Button>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-sm p-4 flex flex-wrap gap-4 items-center">
-        <div className="flex-1 min-w-64">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input
+      <Card variant="elevated" padding="md">
+        <div className="flex flex-wrap gap-4 items-center">
+          <div className="flex-1 min-w-64">
+            <Input
               type="text"
               placeholder="Buscar por ID o cliente..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+              icon={Search}
             />
           </div>
+          <select
+            value={filterEstado}
+            onChange={(e) => setFilterEstado(e.target.value)}
+            className="px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
+          >
+            <option value="">Todos los estados</option>
+            {ESTADOS.map(estado => <option key={estado} value={estado}>{estado}</option>)}
+          </select>
         </div>
-        <select
-          value={filterEstado}
-          onChange={(e) => setFilterEstado(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
-        >
-          <option value="">Todos los estados</option>
-          {ESTADOS.map(estado => <option key={estado} value={estado}>{estado}</option>)}
-        </select>
-      </div>
+      </Card>
 
       {/* Table */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-amber-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">ID</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">Cliente</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">Fecha</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">Vencimiento</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">Total</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">Estado</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">Acciones</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {filteredCotizaciones.map(cotizacion => {
-              const clienteNombre = cotizacion.cliente_id 
-                ? clientes.find(cl => cl.id === cotizacion.cliente_id)?.nombre_completo
-                : cotizacion.nombre_cliente_temporal
-              return (
-                <tr key={cotizacion.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{cotizacion.id}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{clienteNombre}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(cotizacion.fecha_creacion)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(cotizacion.fecha_vencimiento)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{formatCurrency(cotizacion.total)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{getEstadoBadge(cotizacion.estado)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
-                    <button
-                      onClick={() => openModal(cotizacion)}
-                      className="text-blue-600 hover:text-blue-800"
-                      title="Editar"
-                    >
-                      <Edit size={18} />
-                    </button>
-                    <button
-                      onClick={() => { setPrintItem(cotizacion); setShowPrintModal(true) }}
-                      className="text-gray-600 hover:text-gray-800"
-                      title="Imprimir"
-                    >
-                      <Printer size={18} />
-                    </button>
-                    {getEstadoActions(cotizacion)}
+      <Card variant="elevated" padding="none">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-neutral-50 border-b border-neutral-200">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">ID</th>
+                <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">Cliente</th>
+                <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">Fecha</th>
+                <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">Vencimiento</th>
+                <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">Total</th>
+                <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">Estado</th>
+                <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">Acciones</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-neutral-200">
+              {filteredCotizaciones.map(cotizacion => {
+                const clienteNombre = cotizacion.cliente_id 
+                  ? clientes.find(cl => cl.id === cotizacion.cliente_id)?.nombre_completo
+                  : cotizacion.nombre_cliente_temporal
+                return (
+                  <tr key={cotizacion.id} className="hover:bg-neutral-50 transition-base">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-heading font-medium text-neutral-900">{cotizacion.id}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{clienteNombre}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{formatDate(cotizacion.fecha_creacion)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{formatDate(cotizacion.fecha_vencimiento)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-heading font-medium text-neutral-900">{formatCurrency(cotizacion.total)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{getEstadoBadge(cotizacion.estado)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                      <button
+                        onClick={() => openModal(cotizacion)}
+                        className="text-primary-600 hover:text-primary-800 transition-base p-1 hover:bg-primary-50 rounded"
+                        title="Editar"
+                      >
+                        <Edit size={18} />
+                      </button>
+                      <button
+                        onClick={() => { setPrintItem(cotizacion); setShowPrintModal(true) }}
+                        className="text-neutral-600 hover:text-neutral-800 transition-base p-1 hover:bg-neutral-100 rounded"
+                        title="Imprimir"
+                      >
+                        <Printer size={18} />
+                      </button>
+                      {getEstadoActions(cotizacion)}
+                    </td>
+                  </tr>
+                )
+              })}
+              {filteredCotizaciones.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="px-6 py-12 text-center text-neutral-500">
+                    No se encontraron cotizaciones
                   </td>
                 </tr>
-              )
-            })}
-            {filteredCotizaciones.length === 0 && (
-              <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
-                  No se encontraron cotizaciones
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
 
       {/* Modal */}
       {showModal && (
         <Modal onClose={() => { setShowModal(false); setEditingItem(null); resetFormData() }}>
-          <h2 className="font-playfair text-xl font-semibold text-amber-900 mb-4">
+          <h2 className="font-heading text-xl font-semibold text-neutral-900 mb-4">
             {editingItem ? 'Editar Cotización' : 'Nueva Cotización'}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4 max-h-[80vh] overflow-y-auto pr-2">
             {/* Cliente */}
-            <div className="border-b border-gray-200 pb-4">
-              <h3 className="font-medium text-gray-900 mb-3">Datos del Cliente</h3>
+            <div className="border-b border-neutral-200 pb-4">
+              <h3 className="font-heading font-medium text-neutral-900 mb-3">Datos del Cliente</h3>
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Cliente Registrado</label>
+                  <label className="block text-sm font-medium text-neutral-700 mb-1">Cliente Registrado</label>
                   <select
                     value={formData.cliente_id}
                     onChange={(e) => setFormData(prev => ({ ...prev, cliente_id: e.target.value }))}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
                   >
                     <option value="">Seleccionar cliente...</option>
                     {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre_completo}</option>)}
@@ -352,23 +359,21 @@ export default function Cotizaciones() {
                   <>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Nombre Temporal *</label>
-                        <input
+                        <label className="block text-sm font-medium text-neutral-700 mb-1">Nombre Temporal *</label>
+                        <Input
                           type="text"
                           value={formData.nombre_cliente_temporal}
                           onChange={(e) => setFormData(prev => ({ ...prev, nombre_cliente_temporal: e.target.value }))}
                           required={!formData.cliente_id}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono Temporal *</label>
-                        <input
+                        <label className="block text-sm font-medium text-neutral-700 mb-1">Teléfono Temporal *</label>
+                        <Input
                           type="text"
                           value={formData.telefono_cliente_temporal}
                           onChange={(e) => setFormData(prev => ({ ...prev, telefono_cliente_temporal: e.target.value }))}
                           required={!formData.cliente_id}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
                         />
                       </div>
                     </div>
@@ -378,51 +383,51 @@ export default function Cotizaciones() {
             </div>
 
             {/* Items */}
-            <div className="border-b border-gray-200 pb-4">
-              <h3 className="font-medium text-gray-900 mb-3">Ítems</h3>
+            <div className="border-b border-neutral-200 pb-4">
+              <h3 className="font-heading font-medium text-neutral-900 mb-3">Ítems</h3>
               <div className="space-y-2">
                 {formData.items.map((item, index) => (
-                  <div key={index} className="flex gap-2 items-start bg-gray-50 p-3 rounded-lg">
+                  <div key={index} className="flex gap-2 items-start bg-neutral-50 p-3 rounded-lg">
                     <select
                       value={item.producto_id}
                       onChange={(e) => updateItem(index, 'producto_id', e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500"
+                      className="flex-1 px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
                     >
                       <option value="">Seleccionar producto...</option>
                       {productosActivos.map(p => (
                         <option key={p.id} value={p.id}>{p.nombre_producto} - {formatCurrency(p.precio_venta)}</option>
                       ))}
                     </select>
-                    <input
+                    <Input
                       type="number"
                       value={item.cantidad}
                       onChange={(e) => updateItem(index, 'cantidad', parseFloat(e.target.value) || 0)}
                       placeholder="Cant"
                       min="1"
-                      className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500"
+                      className="w-20"
                     />
-                    <input
+                    <Input
                       type="number"
                       value={item.precio_unitario}
                       onChange={(e) => updateItem(index, 'precio_unitario', parseFloat(e.target.value) || 0)}
                       placeholder="Precio"
                       min="0"
                       step="100"
-                      className="w-28 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500"
+                      className="w-28"
                     />
-                    <input
+                    <Input
                       type="number"
                       value={item.descuento_pct}
                       onChange={(e) => updateItem(index, 'descuento_pct', parseFloat(e.target.value) || 0)}
                       placeholder="Desc %"
                       min="0"
                       max="100"
-                      className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500"
+                      className="w-20"
                     />
                     <button
                       type="button"
                       onClick={() => removeItem(index)}
-                      className="text-red-600 hover:text-red-800 p-1"
+                      className="text-error-600 hover:text-error-800 p-1 hover:bg-error-50 rounded transition-base"
                     >
                       <X size={18} />
                     </button>
@@ -431,7 +436,7 @@ export default function Cotizaciones() {
                 <button
                   type="button"
                   onClick={addItem}
-                  className="text-amber-600 hover:text-amber-800 text-sm font-medium"
+                  className="text-primary-600 hover:text-primary-800 text-sm font-medium"
                 >
                   + Agregar ítem
                 </button>
@@ -439,13 +444,13 @@ export default function Cotizaciones() {
             </div>
 
             {/* Totales */}
-            <div className="bg-amber-50 p-4 rounded-lg space-y-2">
+            <div className="bg-primary-50 p-4 rounded-lg border border-primary-200 space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Subtotal:</span>
-                <span className="font-medium">{formatCurrency(subtotal)}</span>
+                <span className="text-neutral-600">Subtotal:</span>
+                <span className="font-medium text-neutral-900">{formatCurrency(subtotal)}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">IVA (19%):</span>
+                <span className="text-neutral-600">IVA (19%):</span>
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
@@ -453,51 +458,47 @@ export default function Cotizaciones() {
                     onChange={(e) => setFormData(prev => ({ ...prev, aplicar_iva: e.target.checked }))}
                     className="rounded"
                   />
-                  <span className="font-medium">{formatCurrency(iva)}</span>
+                  <span className="font-medium text-neutral-900">{formatCurrency(iva)}</span>
                 </div>
               </div>
-              <div className="flex justify-between text-lg font-bold border-t border-amber-200 pt-2">
-                <span>Total:</span>
-                <span>{formatCurrency(total)}</span>
+              <div className="flex justify-between text-lg font-bold border-t border-primary-200 pt-2">
+                <span className="text-neutral-900">Total:</span>
+                <span className="text-neutral-900">{formatCurrency(total)}</span>
               </div>
             </div>
 
             {/* Notas y condiciones */}
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Notas</label>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Notas</label>
                 <textarea
                   value={formData.notas}
                   onChange={(e) => setFormData(prev => ({ ...prev, notas: e.target.value }))}
                   rows={2}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Condiciones de Pago</label>
-                <input
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Condiciones de Pago</label>
+                <Input
                   type="text"
                   value={formData.condiciones_pago}
                   onChange={(e) => setFormData(prev => ({ ...prev, condiciones_pago: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
                 />
               </div>
             </div>
 
             <div className="flex justify-end gap-3 pt-4">
-              <button
+              <Button
                 type="button"
+                variant="secondary"
                 onClick={() => { setShowModal(false); setEditingItem(null); resetFormData() }}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 Cancelar
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700"
-              >
+              </Button>
+              <Button type="submit">
                 {editingItem ? 'Actualizar' : 'Crear'}
-              </button>
+              </Button>
             </div>
           </form>
         </Modal>
@@ -507,15 +508,15 @@ export default function Cotizaciones() {
       {showPrintModal && printItem && (
         <Modal onClose={() => { setShowPrintModal(false); setPrintItem(null) }}>
           <div className="space-y-4">
-            <div className="text-center border-b border-gray-200 pb-4">
-              <h2 className="font-playfair text-2xl font-bold text-amber-900">Velas Artesanales</h2>
-              <p className="text-gray-600">Cotización {printItem.id}</p>
-              <p className="text-sm text-gray-500">{formatDate(printItem.fecha_creacion)}</p>
+            <div className="text-center border-b border-neutral-200 pb-4">
+              <h2 className="font-display text-2xl font-bold text-neutral-900">Velas Artesanales</h2>
+              <p className="text-neutral-600">Cotización {printItem.id}</p>
+              <p className="text-sm text-neutral-500">{formatDate(printItem.fecha_creacion)}</p>
             </div>
 
             <div>
-              <p className="text-sm text-gray-600">Cliente:</p>
-              <p className="font-medium">
+              <p className="text-sm text-neutral-600">Cliente:</p>
+              <p className="font-heading font-medium text-neutral-900">
                 {printItem.cliente_id 
                   ? clientes.find(cl => cl.id === printItem.cliente_id)?.nombre_completo
                   : printItem.nombre_cliente_temporal}
@@ -524,7 +525,7 @@ export default function Cotizaciones() {
 
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-200">
+                <tr className="border-b border-neutral-200">
                   <th className="text-left py-2">Producto</th>
                   <th className="text-right py-2">Cant</th>
                   <th className="text-right py-2">Precio</th>
@@ -534,7 +535,7 @@ export default function Cotizaciones() {
               </thead>
               <tbody>
                 {printItem.items.map((item, index) => (
-                  <tr key={index} className="border-b border-gray-100">
+                  <tr key={index} className="border-b border-neutral-100">
                     <td className="py-2">{item.nombre_producto}</td>
                     <td className="text-right py-2">{item.cantidad}</td>
                     <td className="text-right py-2">{formatCurrency(item.precio_unitario)}</td>
@@ -547,42 +548,42 @@ export default function Cotizaciones() {
 
             <div className="space-y-1 text-sm">
               <div className="flex justify-between">
-                <span>Subtotal:</span>
-                <span>{formatCurrency(printItem.subtotal)}</span>
+                <span className="text-neutral-600">Subtotal:</span>
+                <span className="text-neutral-900">{formatCurrency(printItem.subtotal)}</span>
               </div>
               {printItem.aplicar_iva && (
                 <div className="flex justify-between">
-                  <span>IVA (19%):</span>
-                  <span>{formatCurrency(printItem.iva_monto)}</span>
+                  <span className="text-neutral-600">IVA (19%):</span>
+                  <span className="text-neutral-900">{formatCurrency(printItem.iva_monto)}</span>
                 </div>
               )}
-              <div className="flex justify-between font-bold text-lg border-t border-gray-200 pt-2">
-                <span>Total:</span>
-                <span>{formatCurrency(printItem.total)}</span>
+              <div className="flex justify-between font-bold text-lg border-t border-neutral-200 pt-2">
+                <span className="text-neutral-900">Total:</span>
+                <span className="text-neutral-900">{formatCurrency(printItem.total)}</span>
               </div>
             </div>
 
             {printItem.condiciones_pago && (
-              <div className="bg-gray-50 p-3 rounded-lg text-sm">
-                <p className="font-medium">Condiciones de pago:</p>
-                <p>{printItem.condiciones_pago}</p>
+              <div className="bg-neutral-50 p-3 rounded-lg text-sm">
+                <p className="font-heading font-medium text-neutral-900">Condiciones de pago:</p>
+                <p className="text-neutral-700">{printItem.condiciones_pago}</p>
               </div>
             )}
 
             {printItem.notas && (
-              <div className="bg-gray-50 p-3 rounded-lg text-sm">
-                <p className="font-medium">Notas:</p>
-                <p>{printItem.notas}</p>
+              <div className="bg-neutral-50 p-3 rounded-lg text-sm">
+                <p className="font-heading font-medium text-neutral-900">Notas:</p>
+                <p className="text-neutral-700">{printItem.notas}</p>
               </div>
             )}
 
             <div className="flex justify-end gap-3 pt-4">
-              <button
+              <Button
                 onClick={() => window.print()}
-                className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 flex items-center gap-2"
+                icon={Printer}
               >
-                <Printer size={18} /> Imprimir
-              </button>
+                Imprimir
+              </Button>
             </div>
           </div>
         </Modal>
@@ -593,8 +594,8 @@ export default function Cotizaciones() {
 
 function Modal({ children, onClose }) {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-neutral-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+      <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-scale-in">
         <div className="p-6">
           {children}
         </div>

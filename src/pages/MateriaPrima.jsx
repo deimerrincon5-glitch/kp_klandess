@@ -2,6 +2,10 @@ import React, { useState, useMemo } from 'react'
 import { useApp } from '../context/AppContext'
 import { formatCurrency, formatDate } from '../utils/format'
 import { Plus, Edit, Trash2, Search, Filter, ShoppingCart, AlertCircle } from 'lucide-react'
+import Button from '../components/ui/Button'
+import Input from '../components/ui/Input'
+import { Card, CardHeader, CardTitle, CardBody } from '../components/ui/Card'
+import Badge from '../components/ui/Badge'
 
 const CATEGORIAS = ['Fragancia', 'Cera', 'Colorante', 'Envase', 'Decoración', 'Mecha', 'Pigmento', 'Aditivo', 'Otro']
 const UNIDADES_MEDIDA = ['gramos', 'mililitros', 'unidades', 'kilogramos', 'litros']
@@ -82,187 +86,189 @@ export default function MateriaPrima() {
 
   const getStockBadge = (item) => {
     if (item.cantidad_disponible === 0) {
-      return <span className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">SIN STOCK</span>
+      return <Badge variant="error">SIN STOCK</Badge>
     }
     if (item.cantidad_disponible < item.stock_minimo) {
-      return <span className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">STOCK BAJO</span>
+      return <Badge variant="warning">STOCK BAJO</Badge>
     }
-    return <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">OK</span>
+    return <Badge variant="success">OK</Badge>
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-playfair text-3xl font-bold text-amber-900">Inventario de Materia Prima</h1>
-        <button
+        <div>
+          <h1 className="font-display text-3xl font-bold text-neutral-900">Inventario de Materia Prima</h1>
+          <p className="text-neutral-500 mt-1">Gestiona tus insumos y materiales</p>
+        </div>
+        <Button
           onClick={() => { setEditingItem(null); setShowModal(true) }}
-          className="flex items-center gap-2 bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 transition-colors"
+          icon={Plus}
         >
-          <Plus size={18} />
           Agregar Insumo
-        </button>
+        </Button>
       </div>
 
       {/* Resumen Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <p className="text-sm text-gray-600 mb-1">Total Invertido</p>
-          <p className="text-2xl font-bold text-gray-900">{formatCurrency(resumen.totalInvertido)}</p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <p className="text-sm text-gray-600 mb-1">Insumos Activos</p>
-          <p className="text-2xl font-bold text-gray-900">{resumen.insumosActivos}</p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <p className="text-sm text-gray-600 mb-1">Insumos en Alerta</p>
-          <p className="text-2xl font-bold text-red-600">{resumen.insumosAlerta}</p>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card variant="elevated" padding="md">
+          <p className="text-sm font-medium text-neutral-500 mb-1">Total Invertido</p>
+          <p className="text-2xl font-bold text-neutral-900">{formatCurrency(resumen.totalInvertido)}</p>
+        </Card>
+        <Card variant="elevated" padding="md">
+          <p className="text-sm font-medium text-neutral-500 mb-1">Insumos Activos</p>
+          <p className="text-2xl font-bold text-neutral-900">{resumen.insumosActivos}</p>
+        </Card>
+        <Card variant="elevated" padding="md">
+          <p className="text-sm font-medium text-neutral-500 mb-1">Insumos en Alerta</p>
+          <p className="text-2xl font-bold text-error-600">{resumen.insumosAlerta}</p>
+        </Card>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-sm p-4 flex flex-wrap gap-4 items-center">
-        <div className="flex-1 min-w-64">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input
+      <Card variant="elevated" padding="md">
+        <div className="flex flex-wrap gap-4 items-center">
+          <div className="flex-1 min-w-64">
+            <Input
               type="text"
               placeholder="Buscar por nombre..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+              icon={Search}
             />
           </div>
+          <select
+            value={filterCategoria}
+            onChange={(e) => setFilterCategoria(e.target.value)}
+            className="px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
+          >
+            <option value="">Todas las categorías</option>
+            {CATEGORIAS.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+          </select>
+          <select
+            value={filterUnidad}
+            onChange={(e) => setFilterUnidad(e.target.value)}
+            className="px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
+          >
+            <option value="">Todas las unidades</option>
+            {UNIDADES_MEDIDA.map(unidad => <option key={unidad} value={unidad}>{unidad}</option>)}
+          </select>
+          <select
+            value={filterEstado}
+            onChange={(e) => setFilterEstado(e.target.value)}
+            className="px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
+          >
+            <option value="todos">Todos los estados</option>
+            <option value="alerta">En alerta</option>
+            <option value="sin_stock">Sin stock</option>
+          </select>
         </div>
-        <select
-          value={filterCategoria}
-          onChange={(e) => setFilterCategoria(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
-        >
-          <option value="">Todas las categorías</option>
-          {CATEGORIAS.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-        </select>
-        <select
-          value={filterUnidad}
-          onChange={(e) => setFilterUnidad(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
-        >
-          <option value="">Todas las unidades</option>
-          {UNIDADES_MEDIDA.map(unidad => <option key={unidad} value={unidad}>{unidad}</option>)}
-        </select>
-        <select
-          value={filterEstado}
-          onChange={(e) => setFilterEstado(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
-        >
-          <option value="todos">Todos los estados</option>
-          <option value="alerta">En alerta</option>
-          <option value="sin_stock">Sin stock</option>
-        </select>
-      </div>
+      </Card>
 
       {/* Table */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-amber-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">Nombre</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">Categoría</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">Cantidad</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">Costo/Unidad</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">Costo Total</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">Estado</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">Acciones</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {filteredItems.map(item => (
-              <tr key={item.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">{item.nombre}</div>
-                  <div className="text-sm text-gray-500">{item.proveedor}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.categoria}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {item.cantidad_disponible} {item.unidad_medida}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {formatCurrency(item.costo_por_unidad)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {formatCurrency(item.costo_total)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">{getStockBadge(item)}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
-                  <button
-                    onClick={() => { setCompraItem(item); setShowCompraModal(true) }}
-                    className="text-green-600 hover:text-green-800"
-                    title="Registrar compra"
-                  >
-                    <ShoppingCart size={18} />
-                  </button>
-                  <button
-                    onClick={() => { setEditingItem(item); setShowModal(true) }}
-                    className="text-blue-600 hover:text-blue-800"
-                    title="Editar"
-                  >
-                    <Edit size={18} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(item)}
-                    className="text-red-600 hover:text-red-800"
-                    title="Eliminar"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {filteredItems.length === 0 && (
+      <Card variant="elevated" padding="none">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-neutral-50 border-b border-neutral-200">
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
-                  No se encontraron insumos
-                </td>
+                <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">Nombre</th>
+                <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">Categoría</th>
+                <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">Cantidad</th>
+                <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">Costo/Unidad</th>
+                <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">Costo Total</th>
+                <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">Estado</th>
+                <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">Acciones</th>
               </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="divide-y divide-neutral-200">
+              {filteredItems.map(item => (
+                <tr key={item.id} className="hover:bg-neutral-50 transition-base">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-heading font-medium text-neutral-900">{item.nombre}</div>
+                    <div className="text-sm text-neutral-500">{item.proveedor}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{item.categoria}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+                    {item.cantidad_disponible} {item.unidad_medida}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+                    {formatCurrency(item.costo_por_unidad)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+                    {formatCurrency(item.costo_total)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">{getStockBadge(item)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                    <button
+                      onClick={() => { setCompraItem(item); setShowCompraModal(true) }}
+                      className="text-success-600 hover:text-success-800 transition-base p-1 hover:bg-success-50 rounded"
+                      title="Registrar compra"
+                    >
+                      <ShoppingCart size={18} />
+                    </button>
+                    <button
+                      onClick={() => { setEditingItem(item); setShowModal(true) }}
+                      className="text-primary-600 hover:text-primary-800 transition-base p-1 hover:bg-primary-50 rounded"
+                      title="Editar"
+                    >
+                      <Edit size={18} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(item)}
+                      className="text-error-600 hover:text-error-800 transition-base p-1 hover:bg-error-50 rounded"
+                      title="Eliminar"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {filteredItems.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="px-6 py-12 text-center text-neutral-500">
+                    No se encontraron insumos
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
 
       {/* Modal Agregar/Editar */}
       {showModal && (
         <Modal onClose={() => { setShowModal(false); setEditingItem(null) }}>
-          <h2 className="font-playfair text-xl font-semibold text-amber-900 mb-4">
+          <h2 className="font-heading text-xl font-semibold text-neutral-900 mb-4">
             {editingItem ? 'Editar Insumo' : 'Agregar Insumo'}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
-              <input
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Nombre *</label>
+              <Input
                 name="nombre"
                 defaultValue={editingItem?.nombre}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Categoría *</label>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Categoría *</label>
                 <select
                   name="categoria"
                   defaultValue={editingItem?.categoria}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
                 >
                   {CATEGORIAS.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Unidad de Medida *</label>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Unidad de Medida *</label>
                 <select
                   name="unidad_medida"
                   defaultValue={editingItem?.unidad_medida}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
                 >
                   {UNIDADES_MEDIDA.map(unidad => <option key={unidad} value={unidad}>{unidad}</option>)}
                 </select>
@@ -270,73 +276,66 @@ export default function MateriaPrima() {
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Cantidad Disponible *</label>
-                <input
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Cantidad Disponible *</label>
+                <Input
                   type="number"
                   name="cantidad_disponible"
                   defaultValue={editingItem?.cantidad_disponible}
                   min="0"
                   step="0.01"
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Costo por Unidad (COP) *</label>
-                <input
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Costo por Unidad (COP) *</label>
+                <Input
                   type="number"
                   name="costo_por_unidad"
                   defaultValue={editingItem?.costo_por_unidad}
                   min="0"
                   step="0.01"
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Stock Mínimo *</label>
-                <input
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Stock Mínimo *</label>
+                <Input
                   type="number"
                   name="stock_minimo"
                   defaultValue={editingItem?.stock_minimo}
                   min="0"
                   step="0.01"
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Proveedor</label>
-              <input
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Proveedor</label>
+              <Input
                 name="proveedor"
                 defaultValue={editingItem?.proveedor}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Notas</label>
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Notas</label>
               <textarea
                 name="notas"
                 defaultValue={editingItem?.notas}
                 rows={3}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
               />
             </div>
             <div className="flex justify-end gap-3 pt-4">
-              <button
+              <Button
                 type="button"
+                variant="secondary"
                 onClick={() => { setShowModal(false); setEditingItem(null) }}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 Cancelar
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700"
-              >
+              </Button>
+              <Button type="submit">
                 {editingItem ? 'Actualizar' : 'Agregar'}
-              </button>
+              </Button>
             </div>
           </form>
         </Modal>
@@ -345,51 +344,46 @@ export default function MateriaPrima() {
       {/* Modal Registrar Compra */}
       {showCompraModal && compraItem && (
         <Modal onClose={() => { setShowCompraModal(false); setCompraItem(null) }}>
-          <h2 className="font-playfair text-xl font-semibold text-amber-900 mb-4">
+          <h2 className="font-heading text-xl font-semibold text-neutral-900 mb-4">
             Registrar Compra - {compraItem.nombre}
           </h2>
           <form onSubmit={handleCompra} className="space-y-4">
-            <div className="bg-amber-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600">Stock actual: <span className="font-medium">{compraItem.cantidad_disponible} {compraItem.unidad_medida}</span></p>
-              <p className="text-sm text-gray-600">Costo actual: <span className="font-medium">{formatCurrency(compraItem.costo_por_unidad)}/{compraItem.unidad_medida}</span></p>
+            <div className="bg-primary-50 p-4 rounded-lg border border-primary-200">
+              <p className="text-sm text-neutral-600">Stock actual: <span className="font-medium text-neutral-900">{compraItem.cantidad_disponible} {compraItem.unidad_medida}</span></p>
+              <p className="text-sm text-neutral-600">Costo actual: <span className="font-medium text-neutral-900">{formatCurrency(compraItem.costo_por_unidad)}/{compraItem.unidad_medida}</span></p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Cantidad Comprada *</label>
-              <input
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Cantidad Comprada *</label>
+              <Input
                 type="number"
                 name="cantidad_comprada"
                 min="0.01"
                 step="0.01"
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nuevo Costo por Unidad (COP) *</label>
-              <input
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Nuevo Costo por Unidad (COP) *</label>
+              <Input
                 type="number"
                 name="nuevo_costo_por_unidad"
                 defaultValue={compraItem.costo_por_unidad}
                 min="0"
                 step="0.01"
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
               />
             </div>
             <div className="flex justify-end gap-3 pt-4">
-              <button
+              <Button
                 type="button"
+                variant="secondary"
                 onClick={() => { setShowCompraModal(false); setCompraItem(null) }}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 Cancelar
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700"
-              >
+              </Button>
+              <Button type="submit">
                 Registrar Compra
-              </button>
+              </Button>
             </div>
           </form>
         </Modal>
@@ -400,8 +394,8 @@ export default function MateriaPrima() {
 
 function Modal({ children, onClose }) {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-neutral-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+      <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto animate-scale-in">
         <div className="p-6">
           {children}
         </div>

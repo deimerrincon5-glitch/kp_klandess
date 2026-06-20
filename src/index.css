@@ -2,15 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  margin: 0;
-  font-family: 'Inter', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+@layer base {
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-* {
-  box-sizing: border-box;
+  * {
+    box-sizing: border-box;
+  }
 }
 
 @layer utilities {
@@ -31,5 +33,24 @@ body {
   
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     background: #9ca3af;
+  }
+
+  /* Focus visible for accessibility */
+  *:focus-visible {
+    outline: 2px solid #F59E0B;
+    outline-offset: 2px;
+  }
+
+  /* Smooth transitions */
+  .transition-fast {
+    transition: all 150ms ease-in-out;
+  }
+
+  .transition-base {
+    transition: all 200ms ease-in-out;
+  }
+
+  .transition-slow {
+    transition: all 300ms ease-in-out;
   }
 }

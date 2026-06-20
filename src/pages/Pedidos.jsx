@@ -3,6 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { formatCurrency, formatDate, addDaysToDate, getCurrentDateISO } from '../utils/format'
 import { Plus, Edit, Trash2, Search, ClipboardList, AlertTriangle, LayoutGrid, Table, CheckCircle, XCircle, Clock, Package } from 'lucide-react'
+import Button from '../components/ui/Button'
+import Input from '../components/ui/Input'
+import { Card, CardHeader, CardTitle, CardBody } from '../components/ui/Card'
+import Badge from '../components/ui/Badge'
 
 const ESTADOS = ['Pendiente', 'En producción', 'Listo', 'Entregado', 'Cancelado']
 const ESTADOS_PAGO = ['Pendiente', 'Pago parcial', 'Pagado']
@@ -187,14 +191,14 @@ export default function Pedidos() {
   const { subtotal, iva, total } = calculateTotals()
 
   const getEstadoBadge = (estado) => {
-    const colors = {
-      'Pendiente': 'bg-yellow-100 text-yellow-800',
-      'En producción': 'bg-blue-100 text-blue-800',
-      'Listo': 'bg-purple-100 text-purple-800',
-      'Entregado': 'bg-green-100 text-green-800',
-      'Cancelado': 'bg-red-100 text-red-800'
+    const variants = {
+      'Pendiente': 'warning',
+      'En producción': 'info',
+      'Listo': 'secondary',
+      'Entregado': 'success',
+      'Cancelado': 'error'
     }
-    return <span className={`px-2 py-1 text-xs rounded-full ${colors[estado]}`}>{estado}</span>
+    return <Badge variant={variants[estado]}>{estado}</Badge>
   }
 
   const isEntregaProxima = (pedido) => {
@@ -207,153 +211,156 @@ export default function Pedidos() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-playfair text-3xl font-bold text-amber-900">Pedidos</h1>
+        <div>
+          <h1 className="font-display text-3xl font-bold text-neutral-900">Pedidos</h1>
+          <p className="text-neutral-500 mt-1">Gestiona tus pedidos y seguimiento</p>
+        </div>
         <div className="flex gap-3">
-          <div className="flex items-center gap-2 bg-white rounded-lg shadow-sm px-3 py-2">
+          <div className="flex items-center gap-2 bg-white rounded-lg shadow-sm px-3 py-2 border border-neutral-200">
             <button
               onClick={() => setViewMode('table')}
-              className={`p-2 rounded ${viewMode === 'table' ? 'bg-amber-100 text-amber-700' : 'text-gray-500'}`}
+              className={`p-2 rounded transition-base ${viewMode === 'table' ? 'bg-primary-100 text-primary-700' : 'text-neutral-500 hover:bg-neutral-100'}`}
             >
               <Table size={20} />
             </button>
             <button
               onClick={() => setViewMode('kanban')}
-              className={`p-2 rounded ${viewMode === 'kanban' ? 'bg-amber-100 text-amber-700' : 'text-gray-500'}`}
+              className={`p-2 rounded transition-base ${viewMode === 'kanban' ? 'bg-primary-100 text-primary-700' : 'text-neutral-500 hover:bg-neutral-100'}`}
             >
               <LayoutGrid size={20} />
             </button>
           </div>
-          <button
+          <Button
             onClick={() => openModal()}
-            className="flex items-center gap-2 bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 transition-colors"
+            icon={Plus}
           >
-            <Plus size={18} />
             Nuevo Pedido
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Resumen Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <p className="text-sm text-gray-600 mb-1">Pedidos Activos</p>
-          <p className="text-2xl font-bold text-gray-900">{resumen.pedidosActivosCount}</p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <p className="text-sm text-gray-600 mb-1">Valor en Curso</p>
-          <p className="text-2xl font-bold text-gray-900">{formatCurrency(resumen.valorEnCurso)}</p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <p className="text-sm text-gray-600 mb-1">Alertas de Entrega</p>
-          <p className="text-2xl font-bold text-red-600">{resumen.alertasEntrega}</p>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card variant="elevated" padding="md">
+          <p className="text-sm font-medium text-neutral-500 mb-1">Pedidos Activos</p>
+          <p className="text-2xl font-bold text-neutral-900">{resumen.pedidosActivosCount}</p>
+        </Card>
+        <Card variant="elevated" padding="md">
+          <p className="text-sm font-medium text-neutral-500 mb-1">Valor en Curso</p>
+          <p className="text-2xl font-bold text-neutral-900">{formatCurrency(resumen.valorEnCurso)}</p>
+        </Card>
+        <Card variant="elevated" padding="md">
+          <p className="text-sm font-medium text-neutral-500 mb-1">Alertas de Entrega</p>
+          <p className="text-2xl font-bold text-error-600">{resumen.alertasEntrega}</p>
+        </Card>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-sm p-4 flex flex-wrap gap-4 items-center">
-        <div className="flex-1 min-w-64">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input
+      <Card variant="elevated" padding="md">
+        <div className="flex flex-wrap gap-4 items-center">
+          <div className="flex-1 min-w-64">
+            <Input
               type="text"
               placeholder="Buscar por ID o cliente..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+              icon={Search}
             />
           </div>
+          <select
+            value={filterEstado}
+            onChange={(e) => setFilterEstado(e.target.value)}
+            className="px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
+          >
+            <option value="">Todos los estados</option>
+            {ESTADOS.map(estado => <option key={estado} value={estado}>{estado}</option>)}
+          </select>
         </div>
-        <select
-          value={filterEstado}
-          onChange={(e) => setFilterEstado(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
-        >
-          <option value="">Todos los estados</option>
-          {ESTADOS.map(estado => <option key={estado} value={estado}>{estado}</option>)}
-        </select>
-      </div>
+      </Card>
 
       {/* Table View */}
       {viewMode === 'table' && (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-amber-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">Cliente</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">Fecha Entrega</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">Total</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">Estado</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">Pago</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {filteredPedidos.map(pedido => (
-                <tr key={pedido.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-gray-900">{pedido.id}</span>
-                      {isEntregaProxima(pedido) && <AlertTriangle size={14} className="text-red-500" />}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{pedido.nombre_cliente}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(pedido.fecha_entrega_estimada)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{formatCurrency(pedido.total)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{getEstadoBadge(pedido.estado)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm text-gray-900">{pedido.estado_pago}</span>
-                    {pedido.adelanto > 0 && <span className="text-xs text-gray-500"> ({formatCurrency(pedido.adelanto)})</span>}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
-                    <button
-                      onClick={() => openModal(pedido)}
-                      className="text-blue-600 hover:text-blue-800"
-                      title="Editar"
-                    >
-                      <Edit size={18} />
-                    </button>
-                    {pedido.estado !== 'Entregado' && pedido.estado !== 'Cancelado' && (
-                      <button
-                        onClick={() => handleMarcarEntregadoYPagado(pedido)}
-                        className="text-green-600 hover:text-green-800"
-                        title="Marcar entregado y pagado"
-                      >
-                        <CheckCircle size={18} />
-                      </button>
-                    )}
-                    <button
-                      onClick={() => handleDelete(pedido)}
-                      className="text-red-600 hover:text-red-800"
-                      title="Eliminar"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {filteredPedidos.length === 0 && (
+        <Card variant="elevated" padding="none">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-neutral-50 border-b border-neutral-200">
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
-                    No se encontraron pedidos
-                  </td>
+                  <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">ID</th>
+                  <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">Cliente</th>
+                  <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">Fecha Entrega</th>
+                  <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">Total</th>
+                  <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">Estado</th>
+                  <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">Pago</th>
+                  <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">Acciones</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-neutral-200">
+                {filteredPedidos.map(pedido => (
+                  <tr key={pedido.id} className="hover:bg-neutral-50 transition-base">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-heading font-medium text-neutral-900">{pedido.id}</span>
+                        {isEntregaProxima(pedido) && <AlertTriangle size={14} className="text-error-500" />}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{pedido.nombre_cliente}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{formatDate(pedido.fecha_entrega_estimada)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-heading font-medium text-neutral-900">{formatCurrency(pedido.total)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{getEstadoBadge(pedido.estado)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm text-neutral-900">{pedido.estado_pago}</span>
+                      {pedido.adelanto > 0 && <span className="text-xs text-neutral-500"> ({formatCurrency(pedido.adelanto)})</span>}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                      <button
+                        onClick={() => openModal(pedido)}
+                        className="text-primary-600 hover:text-primary-800 transition-base p-1 hover:bg-primary-50 rounded"
+                        title="Editar"
+                      >
+                        <Edit size={18} />
+                      </button>
+                      {pedido.estado !== 'Entregado' && pedido.estado !== 'Cancelado' && (
+                        <button
+                          onClick={() => handleMarcarEntregadoYPagado(pedido)}
+                          className="text-success-600 hover:text-success-800 transition-base p-1 hover:bg-success-50 rounded"
+                          title="Marcar entregado y pagado"
+                        >
+                          <CheckCircle size={18} />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleDelete(pedido)}
+                        className="text-error-600 hover:text-error-800 transition-base p-1 hover:bg-error-50 rounded"
+                        title="Eliminar"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {filteredPedidos.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center text-neutral-500">
+                      No se encontraron pedidos
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Card>
       )}
 
       {/* Kanban View */}
       {viewMode === 'kanban' && (
         <div className="flex gap-4 overflow-x-auto pb-4">
           {kanbanColumns.map(column => (
-            <div key={column.estado} className="flex-shrink-0 w-80 bg-gray-50 rounded-xl p-4">
+            <div key={column.estado} className="flex-shrink-0 w-80 bg-neutral-50 rounded-lg p-4 border border-neutral-200">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-medium text-gray-900">{column.estado}</h3>
+                <h3 className="font-heading font-medium text-neutral-900">{column.estado}</h3>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-600">{column.pedidos.length}</span>
-                  <span className="text-sm text-gray-600">{formatCurrency(column.total)}</span>
+                  <span className="text-sm text-neutral-600">{column.pedidos.length}</span>
+                  <span className="text-sm text-neutral-600">{formatCurrency(column.total)}</span>
                 </div>
               </div>
               <div className="space-y-3">
@@ -368,7 +375,7 @@ export default function Pedidos() {
                   />
                 ))}
                 {column.pedidos.length === 0 && (
-                  <p className="text-center text-gray-500 text-sm py-4">Sin pedidos</p>
+                  <p className="text-center text-neutral-500 text-sm py-4">Sin pedidos</p>
                 )}
               </div>
             </div>
@@ -379,16 +386,16 @@ export default function Pedidos() {
       {/* Modal */}
       {showModal && (
         <Modal onClose={() => { setShowModal(false); setEditingItem(null); resetFormData() }}>
-          <h2 className="font-playfair text-xl font-semibold text-amber-900 mb-4">
+          <h2 className="font-heading text-xl font-semibold text-neutral-900 mb-4">
             {editingItem ? 'Editar Pedido' : 'Nuevo Pedido'}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4 max-h-[80vh] overflow-y-auto pr-2">
             {/* Cliente */}
-            <div className="border-b border-gray-200 pb-4">
-              <h3 className="font-medium text-gray-900 mb-3">Datos del Cliente</h3>
+            <div className="border-b border-neutral-200 pb-4">
+              <h3 className="font-heading font-medium text-neutral-900 mb-3">Datos del Cliente</h3>
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Cliente Registrado</label>
+                  <label className="block text-sm font-medium text-neutral-700 mb-1">Cliente Registrado</label>
                   <select
                     value={formData.cliente_id}
                     onChange={(e) => {
@@ -401,93 +408,90 @@ export default function Pedidos() {
                         direccion_entrega: cliente?.direccion || ''
                       }))
                     }}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
                   >
                     <option value="">Seleccionar cliente...</option>
                     {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre_completo}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del Cliente *</label>
-                  <input
+                  <label className="block text-sm font-medium text-neutral-700 mb-1">Nombre del Cliente *</label>
+                  <Input
                     type="text"
                     value={formData.nombre_cliente}
                     onChange={(e) => setFormData(prev => ({ ...prev, nombre_cliente: e.target.value }))}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono *</label>
-                    <input
+                    <label className="block text-sm font-medium text-neutral-700 mb-1">Teléfono *</label>
+                    <Input
                       type="text"
                       value={formData.telefono_cliente}
                       onChange={(e) => setFormData(prev => ({ ...prev, telefono_cliente: e.target.value }))}
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Fecha Entrega Estimada *</label>
+                    <label className="block text-sm font-medium text-neutral-700 mb-1">Fecha Entrega Estimada *</label>
                     <input
                       type="date"
                       value={formData.fecha_entrega_estimada}
                       onChange={(e) => setFormData(prev => ({ ...prev, fecha_entrega_estimada: e.target.value }))}
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                      className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Dirección de Entrega</label>
-                  <input
+                  <label className="block text-sm font-medium text-neutral-700 mb-1">Dirección de Entrega</label>
+                  <Input
                     type="text"
                     value={formData.direccion_entrega}
                     onChange={(e) => setFormData(prev => ({ ...prev, direccion_entrega: e.target.value }))}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
               </div>
             </div>
 
             {/* Items */}
-            <div className="border-b border-gray-200 pb-4">
-              <h3 className="font-medium text-gray-900 mb-3">Ítems</h3>
+            <div className="border-b border-neutral-200 pb-4">
+              <h3 className="font-heading font-medium text-neutral-900 mb-3">Ítems</h3>
               <div className="space-y-2">
                 {formData.items.map((item, index) => (
-                  <div key={index} className="flex gap-2 items-start bg-gray-50 p-3 rounded-lg">
+                  <div key={index} className="flex gap-2 items-start bg-neutral-50 p-3 rounded-lg">
                     <select
                       value={item.producto_id}
                       onChange={(e) => updateItem(index, 'producto_id', e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500"
+                      className="flex-1 px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
                     >
                       <option value="">Seleccionar producto...</option>
                       {productosActivos.map(p => (
                         <option key={p.id} value={p.id}>{p.nombre_producto} - {formatCurrency(p.precio_venta)}</option>
                       ))}
                     </select>
-                    <input
+                    <Input
                       type="number"
                       value={item.cantidad}
                       onChange={(e) => updateItem(index, 'cantidad', parseFloat(e.target.value) || 0)}
                       placeholder="Cant"
                       min="1"
-                      className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500"
+                      className="w-20"
                     />
-                    <input
+                    <Input
                       type="number"
                       value={item.precio_unitario}
                       onChange={(e) => updateItem(index, 'precio_unitario', parseFloat(e.target.value) || 0)}
                       placeholder="Precio"
                       min="0"
                       step="100"
-                      className="w-28 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500"
+                      className="w-28"
                     />
                     <button
                       type="button"
                       onClick={() => removeItem(index)}
-                      className="text-red-600 hover:text-red-800 p-1"
+                      className="text-error-600 hover:text-error-800 p-1 hover:bg-error-50 rounded transition-base"
                     >
                       <XCircle size={18} />
                     </button>
@@ -496,7 +500,7 @@ export default function Pedidos() {
                 <button
                   type="button"
                   onClick={addItem}
-                  className="text-amber-600 hover:text-amber-800 text-sm font-medium"
+                  className="text-primary-600 hover:text-primary-800 text-sm font-medium"
                 >
                   + Agregar ítem
                 </button>
@@ -504,13 +508,13 @@ export default function Pedidos() {
             </div>
 
             {/* Totales */}
-            <div className="bg-amber-50 p-4 rounded-lg space-y-2">
+            <div className="bg-primary-50 p-4 rounded-lg border border-primary-200 space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Subtotal:</span>
-                <span className="font-medium">{formatCurrency(subtotal)}</span>
+                <span className="text-neutral-600">Subtotal:</span>
+                <span className="font-medium text-neutral-900">{formatCurrency(subtotal)}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">IVA (19%):</span>
+                <span className="text-neutral-600">IVA (19%):</span>
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
@@ -518,36 +522,36 @@ export default function Pedidos() {
                     onChange={(e) => setFormData(prev => ({ ...prev, aplicar_iva: e.target.checked }))}
                     className="rounded"
                   />
-                  <span className="font-medium">{formatCurrency(iva)}</span>
+                  <span className="font-medium text-neutral-900">{formatCurrency(iva)}</span>
                 </div>
               </div>
-              <div className="flex justify-between text-lg font-bold border-t border-amber-200 pt-2">
-                <span>Total:</span>
-                <span>{formatCurrency(total)}</span>
+              <div className="flex justify-between text-lg font-bold border-t border-primary-200 pt-2">
+                <span className="text-neutral-900">Total:</span>
+                <span className="text-neutral-900">{formatCurrency(total)}</span>
               </div>
             </div>
 
             {/* Pago */}
-            <div className="border-b border-gray-200 pb-4">
-              <h3 className="font-medium text-gray-900 mb-3">Información de Pago</h3>
+            <div className="border-b border-neutral-200 pb-4">
+              <h3 className="font-heading font-medium text-neutral-900 mb-3">Información de Pago</h3>
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Método de Pago</label>
+                    <label className="block text-sm font-medium text-neutral-700 mb-1">Método de Pago</label>
                     <select
                       value={formData.metodo_pago}
                       onChange={(e) => setFormData(prev => ({ ...prev, metodo_pago: e.target.value }))}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                      className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
                     >
                       {METODOS_PAGO.map(metodo => <option key={metodo} value={metodo}>{metodo}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Estado de Pago</label>
+                    <label className="block text-sm font-medium text-neutral-700 mb-1">Estado de Pago</label>
                     <select
                       value={formData.estado_pago}
                       onChange={(e) => setFormData(prev => ({ ...prev, estado_pago: e.target.value }))}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                      className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
                     >
                       {ESTADOS_PAGO.map(estado => <option key={estado} value={estado}>{estado}</option>)}
                     </select>
@@ -555,14 +559,13 @@ export default function Pedidos() {
                 </div>
                 {formData.estado_pago === 'Pago parcial' && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Adelanto</label>
-                    <input
+                    <label className="block text-sm font-medium text-neutral-700 mb-1">Adelanto</label>
+                    <Input
                       type="number"
                       value={formData.adelanto}
                       onChange={(e) => setFormData(prev => ({ ...prev, adelanto: parseFloat(e.target.value) || 0 }))}
                       min="0"
                       step="100"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
                     />
                   </div>
                 )}
@@ -571,29 +574,26 @@ export default function Pedidos() {
 
             {/* Notas */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Notas</label>
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Notas</label>
               <textarea
                 value={formData.notas}
                 onChange={(e) => setFormData(prev => ({ ...prev, notas: e.target.value }))}
                 rows={2}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
               />
             </div>
 
             <div className="flex justify-end gap-3 pt-4">
-              <button
+              <Button
                 type="button"
+                variant="secondary"
                 onClick={() => { setShowModal(false); setEditingItem(null); resetFormData() }}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 Cancelar
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700"
-              >
+              </Button>
+              <Button type="submit">
                 {editingItem ? 'Actualizar' : 'Crear'}
-              </button>
+              </Button>
             </div>
           </form>
         </Modal>
@@ -604,18 +604,18 @@ export default function Pedidos() {
 
 function KanbanCard({ pedido, onEstadoChange, onMarcarEntregadoYPagado, isEntregaProxima, getEstadoBadge }) {
   return (
-    <div className="bg-white rounded-lg shadow-sm p-4">
+    <Card variant="elevated" padding="sm">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-medium text-gray-900">{pedido.id}</span>
-        {isEntregaProxima && <AlertTriangle size={14} className="text-red-500" />}
+        <span className="text-sm font-heading font-medium text-neutral-900">{pedido.id}</span>
+        {isEntregaProxima && <AlertTriangle size={14} className="text-error-500" />}
       </div>
-      <p className="text-sm text-gray-600 mb-2">{pedido.nombre_cliente}</p>
-      <p className="text-lg font-bold text-amber-900 mb-3">{formatCurrency(pedido.total)}</p>
+      <p className="text-sm text-neutral-600 mb-2">{pedido.nombre_cliente}</p>
+      <p className="text-lg font-bold text-neutral-900 mb-3">{formatCurrency(pedido.total)}</p>
       <div className="space-y-2">
         <select
           value={pedido.estado}
           onChange={(e) => onEstadoChange(pedido.id, e.target.value)}
-          className="w-full text-xs px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-amber-500"
+          className="w-full text-xs px-2 py-1 border border-neutral-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
         >
           <option value="Pendiente">Pendiente</option>
           <option value="En producción">En producción</option>
@@ -624,22 +624,23 @@ function KanbanCard({ pedido, onEstadoChange, onMarcarEntregadoYPagado, isEntreg
           <option value="Cancelado">Cancelado</option>
         </select>
         {pedido.estado !== 'Entregado' && pedido.estado !== 'Cancelado' && (
-          <button
+          <Button
             onClick={() => onMarcarEntregadoYPagado(pedido)}
-            className="w-full text-xs bg-green-100 text-green-800 px-2 py-1 rounded hover:bg-green-200"
+            variant="success"
+            className="w-full text-xs"
           >
             Marcar Entregado y Pagado
-          </button>
+          </Button>
         )}
       </div>
-    </div>
+    </Card>
   )
 }
 
 function Modal({ children, onClose }) {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-neutral-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+      <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-scale-in">
         <div className="p-6">
           {children}
         </div>

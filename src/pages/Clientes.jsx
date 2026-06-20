@@ -2,6 +2,10 @@ import React, { useState, useMemo } from 'react'
 import { useApp } from '../context/AppContext'
 import { formatCurrency, formatDate } from '../utils/format'
 import { Plus, Edit, Trash2, Search, User, ShoppingCart, Star } from 'lucide-react'
+import Button from '../components/ui/Button'
+import Input from '../components/ui/Input'
+import { Card, CardHeader, CardTitle, CardBody } from '../components/ui/Card'
+import Badge from '../components/ui/Badge'
 
 export default function Clientes() {
   const { clientes, pedidos, addCliente, updateCliente, deleteCliente } = useApp()
@@ -81,199 +85,193 @@ export default function Clientes() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-playfair text-3xl font-bold text-amber-900">Clientes</h1>
-        <button
+        <div>
+          <h1 className="font-display text-3xl font-bold text-neutral-900">Clientes</h1>
+          <p className="text-neutral-500 mt-1">Gestiona tu base de clientes</p>
+        </div>
+        <Button
           onClick={() => { setEditingItem(null); setShowModal(true) }}
-          className="flex items-center gap-2 bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 transition-colors"
+          icon={Plus}
         >
-          <Plus size={18} />
           Agregar Cliente
-        </button>
+        </Button>
       </div>
 
       {/* Search */}
-      <div className="bg-white rounded-xl shadow-sm p-4">
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-          <input
+      <Card variant="elevated" padding="md">
+        <div className="max-w-md">
+          <Input
             type="text"
             placeholder="Buscar por nombre, documento o ciudad..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+            icon={Search}
           />
         </div>
-      </div>
+      </Card>
 
       {/* Table */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-amber-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">Cliente</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">Tipo</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">Contacto</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">Ciudad</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">Total Compras</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-amber-900 uppercase tracking-wider">Acciones</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {filteredClientes.map(cliente => (
-              <tr key={cliente.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => openDetail(cliente)}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-amber-100 p-2 rounded-full">
-                      <User size={18} className="text-amber-600" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-medium text-gray-900">{cliente.nombre_completo}</p>
-                        {isClienteFrecuente(cliente.id) && <Star size={14} className="text-yellow-500 fill-yellow-500" />}
-                      </div>
-                      <p className="text-xs text-gray-500">{cliente.documento}</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{cliente.tipo}</td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <p className="text-sm text-gray-900">{cliente.telefono}</p>
-                  <p className="text-xs text-gray-500">{cliente.email}</p>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{cliente.ciudad}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {formatCurrency(getTotalCompras(cliente.id))}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2" onClick={(e) => e.stopPropagation()}>
-                  <button
-                    onClick={() => { setEditingItem(cliente); setShowModal(true) }}
-                    className="text-blue-600 hover:text-blue-800"
-                    title="Editar"
-                  >
-                    <Edit size={18} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(cliente)}
-                    className="text-red-600 hover:text-red-800"
-                    title="Eliminar"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {filteredClientes.length === 0 && (
+      <Card variant="elevated" padding="none">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-neutral-50 border-b border-neutral-200">
               <tr>
-                <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
-                  No se encontraron clientes
-                </td>
+                <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">Cliente</th>
+                <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">Tipo</th>
+                <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">Contacto</th>
+                <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">Ciudad</th>
+                <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">Total Compras</th>
+                <th className="px-6 py-3 text-left text-xs font-heading font-semibold text-neutral-700 uppercase tracking-wider">Acciones</th>
               </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="divide-y divide-neutral-200">
+              {filteredClientes.map(cliente => (
+                <tr key={cliente.id} className="hover:bg-neutral-50 cursor-pointer transition-base" onClick={() => openDetail(cliente)}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-primary-100 p-2 rounded-full">
+                        <User size={18} className="text-primary-600" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-heading font-medium text-neutral-900">{cliente.nombre_completo}</p>
+                          {isClienteFrecuente(cliente.id) && <Star size={14} className="text-warning-500 fill-warning-500" />}
+                        </div>
+                        <p className="text-xs text-neutral-500">{cliente.documento}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{cliente.tipo}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <p className="text-sm text-neutral-900">{cliente.telefono}</p>
+                    <p className="text-xs text-neutral-500">{cliente.email}</p>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{cliente.ciudad}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-heading font-medium text-neutral-900">
+                    {formatCurrency(getTotalCompras(cliente.id))}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      onClick={() => { setEditingItem(cliente); setShowModal(true) }}
+                      className="text-primary-600 hover:text-primary-800 transition-base p-1 hover:bg-primary-50 rounded"
+                      title="Editar"
+                    >
+                      <Edit size={18} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(cliente)}
+                      className="text-error-600 hover:text-error-800 transition-base p-1 hover:bg-error-50 rounded"
+                      title="Eliminar"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {filteredClientes.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center text-neutral-500">
+                    No se encontraron clientes
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
 
       {/* Modal Agregar/Editar */}
       {showModal && (
         <Modal onClose={() => { setShowModal(false); setEditingItem(null) }}>
-          <h2 className="font-playfair text-xl font-semibold text-amber-900 mb-4">
+          <h2 className="font-heading text-xl font-semibold text-neutral-900 mb-4">
             {editingItem ? 'Editar Cliente' : 'Agregar Cliente'}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nombre Completo *</label>
-              <input
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Nombre Completo *</label>
+              <Input
                 name="nombre_completo"
                 defaultValue={editingItem?.nombre_completo}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tipo *</label>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Tipo *</label>
                 <select
                   name="tipo"
                   defaultValue={editingItem?.tipo}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
                 >
                   <option value="Persona Natural">Persona Natural</option>
                   <option value="Empresa">Empresa</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Documento (CC/NIT) *</label>
-                <input
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Documento (CC/NIT) *</label>
+                <Input
                   name="documento"
                   defaultValue={editingItem?.documento}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
                 />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Email</label>
+                <Input
                   type="email"
                   name="email"
                   defaultValue={editingItem?.email}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono *</label>
-                <input
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Teléfono *</label>
+                <Input
                   name="telefono"
                   defaultValue={editingItem?.telefono}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
                 />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Ciudad *</label>
-                <input
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Ciudad *</label>
+                <Input
                   name="ciudad"
                   defaultValue={editingItem?.ciudad}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
-                <input
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Dirección</label>
+                <Input
                   name="direccion"
                   defaultValue={editingItem?.direccion}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Notas</label>
+              <label className="block text-sm font-medium text-neutral-700 mb-1">Notas</label>
               <textarea
                 name="notas"
                 defaultValue={editingItem?.notas}
                 rows={3}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
               />
             </div>
             <div className="flex justify-end gap-3 pt-4">
-              <button
+              <Button
                 type="button"
+                variant="secondary"
                 onClick={() => { setShowModal(false); setEditingItem(null) }}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 Cancelar
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700"
-              >
+              </Button>
+              <Button type="submit">
                 {editingItem ? 'Actualizar' : 'Agregar'}
-              </button>
+              </Button>
             </div>
           </form>
         </Modal>
@@ -284,15 +282,15 @@ export default function Clientes() {
         <Modal onClose={() => { setShowDetailModal(false); setDetailItem(null) }}>
           <div className="space-y-4">
             <div className="flex items-center gap-3 mb-4">
-              <div className="bg-amber-100 p-3 rounded-full">
-                <User size={24} className="text-amber-600" />
+              <div className="bg-primary-100 p-3 rounded-full">
+                <User size={24} className="text-primary-600" />
               </div>
               <div>
-                <h2 className="font-playfair text-xl font-semibold text-amber-900">{detailItem.nombre_completo}</h2>
-                <p className="text-sm text-gray-600">{detailItem.tipo} • {detailItem.documento}</p>
+                <h2 className="font-heading text-xl font-semibold text-neutral-900">{detailItem.nombre_completo}</h2>
+                <p className="text-sm text-neutral-600">{detailItem.tipo} • {detailItem.documento}</p>
                 {isClienteFrecuente(detailItem.id) && (
-                  <div className="flex items-center gap-1 text-yellow-600 text-sm">
-                    <Star size={14} className="fill-yellow-600" />
+                  <div className="flex items-center gap-1 text-warning-600 text-sm">
+                    <Star size={14} className="fill-warning-600" />
                     <span>Cliente frecuente</span>
                   </div>
                 )}
@@ -301,54 +299,56 @@ export default function Clientes() {
 
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-gray-600">Email:</p>
-                <p className="font-medium">{detailItem.email || '-'}</p>
+                <p className="text-neutral-600">Email:</p>
+                <p className="font-medium text-neutral-900">{detailItem.email || '-'}</p>
               </div>
               <div>
-                <p className="text-gray-600">Teléfono:</p>
-                <p className="font-medium">{detailItem.telefono}</p>
+                <p className="text-neutral-600">Teléfono:</p>
+                <p className="font-medium text-neutral-900">{detailItem.telefono}</p>
               </div>
               <div>
-                <p className="text-gray-600">Ciudad:</p>
-                <p className="font-medium">{detailItem.ciudad}</p>
+                <p className="text-neutral-600">Ciudad:</p>
+                <p className="font-medium text-neutral-900">{detailItem.ciudad}</p>
               </div>
               <div>
-                <p className="text-gray-600">Dirección:</p>
-                <p className="font-medium">{detailItem.direccion || '-'}</p>
+                <p className="text-neutral-600">Dirección:</p>
+                <p className="font-medium text-neutral-900">{detailItem.direccion || '-'}</p>
               </div>
             </div>
 
             {detailItem.notas && (
               <div>
-                <p className="text-sm text-gray-600 mb-1">Notas:</p>
-                <p className="text-sm bg-gray-50 p-3 rounded-lg">{detailItem.notas}</p>
+                <p className="text-sm text-neutral-600 mb-1">Notas:</p>
+                <p className="text-sm bg-neutral-50 p-3 rounded-lg text-neutral-900">{detailItem.notas}</p>
               </div>
             )}
 
-            <div className="border-t border-gray-200 pt-4">
-              <h3 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+            <div className="border-t border-neutral-200 pt-4">
+              <h3 className="font-heading font-medium text-neutral-900 mb-3 flex items-center gap-2">
                 <ShoppingCart size={18} />
                 Historial de Pedidos
               </h3>
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {getClienteHistorial(detailItem.id).length === 0 ? (
-                  <p className="text-gray-500 text-sm">No hay pedidos registrados</p>
+                  <p className="text-neutral-500 text-sm">No hay pedidos registrados</p>
                 ) : (
                   getClienteHistorial(detailItem.id).map(pedido => (
-                    <div key={pedido.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg text-sm">
+                    <div key={pedido.id} className="flex items-center justify-between p-2 bg-neutral-50 rounded-lg text-sm">
                       <div>
-                        <p className="font-medium">{pedido.id}</p>
-                        <p className="text-gray-600">{formatDate(pedido.fecha_pedido)}</p>
+                        <p className="font-heading font-medium text-neutral-900">{pedido.id}</p>
+                        <p className="text-neutral-600">{formatDate(pedido.fecha_pedido)}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-medium">{formatCurrency(pedido.total)}</p>
-                        <span className={`text-xs px-2 py-1 rounded-full ${
-                          pedido.estado === 'Entregado' ? 'bg-green-100 text-green-800' :
-                          pedido.estado === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-blue-100 text-blue-800'
-                        }`}>
+                        <p className="font-heading font-medium text-neutral-900">{formatCurrency(pedido.total)}</p>
+                        <Badge
+                          variant={
+                            pedido.estado === 'Entregado' ? 'success' :
+                            pedido.estado === 'Pendiente' ? 'warning' :
+                            'info'
+                          }
+                        >
                           {pedido.estado}
-                        </span>
+                        </Badge>
                       </div>
                     </div>
                   ))
@@ -356,10 +356,10 @@ export default function Clientes() {
               </div>
             </div>
 
-            <div className="bg-amber-50 p-4 rounded-lg">
+            <div className="bg-primary-50 p-4 rounded-lg border border-primary-200">
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Total histórico de compras:</span>
-                <span className="text-xl font-bold text-amber-900">{formatCurrency(getTotalCompras(detailItem.id))}</span>
+                <span className="text-neutral-600">Total histórico de compras:</span>
+                <span className="text-xl font-bold text-neutral-900">{formatCurrency(getTotalCompras(detailItem.id))}</span>
               </div>
             </div>
           </div>
@@ -371,8 +371,8 @@ export default function Clientes() {
 
 function Modal({ children, onClose }) {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-neutral-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+      <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto animate-scale-in">
         <div className="p-6">
           {children}
         </div>
