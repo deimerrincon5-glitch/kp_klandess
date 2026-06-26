@@ -79,14 +79,27 @@ export default function Finanzas() {
     for (let i = 5; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
       const monthName = d.toLocaleString('es-ES', { month: 'short' })
-      const monthIngresos = finanzasIngresos.filter(i => {
+      
+      // Apply filters to ingresos
+      let filteredIngresos = finanzasIngresos
+      if (filterCategoria) {
+        filteredIngresos = filteredIngresos.filter(i => i.categoria === filterCategoria)
+      }
+      const monthIngresos = filteredIngresos.filter(i => {
         const id = new Date(i.fecha)
         return id.getMonth() === d.getMonth() && id.getFullYear() === d.getFullYear()
       })
-      const monthEgresos = finanzasEgresos.filter(e => {
+      
+      // Apply filters to egresos
+      let filteredEgresos = finanzasEgresos
+      if (filterCategoria) {
+        filteredEgresos = filteredEgresos.filter(e => e.categoria === filterCategoria)
+      }
+      const monthEgresos = filteredEgresos.filter(e => {
         const ed = new Date(e.fecha)
         return ed.getMonth() === d.getMonth() && ed.getFullYear() === d.getFullYear()
       })
+      
       months.push({
         month: monthName,
         ingresos: monthIngresos.reduce((sum, i) => sum + i.monto, 0),
@@ -94,7 +107,7 @@ export default function Finanzas() {
       })
     }
     return months
-  }, [finanzasIngresos, finanzasEgresos])
+  }, [finanzasIngresos, finanzasEgresos, filterCategoria])
 
   // Monthly balance table
   const balanceMensual = useMemo(() => {
@@ -105,14 +118,27 @@ export default function Finanzas() {
     for (let i = 5; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
       const monthName = d.toLocaleString('es-ES', { month: 'short', year: '2-digit' })
-      const monthIngresos = finanzasIngresos.filter(i => {
+      
+      // Apply filters to ingresos
+      let filteredIngresos = finanzasIngresos
+      if (filterCategoria) {
+        filteredIngresos = filteredIngresos.filter(i => i.categoria === filterCategoria)
+      }
+      const monthIngresos = filteredIngresos.filter(i => {
         const id = new Date(i.fecha)
         return id.getMonth() === d.getMonth() && id.getFullYear() === d.getFullYear()
       })
-      const monthEgresos = finanzasEgresos.filter(e => {
+      
+      // Apply filters to egresos
+      let filteredEgresos = finanzasEgresos
+      if (filterCategoria) {
+        filteredEgresos = filteredEgresos.filter(e => e.categoria === filterCategoria)
+      }
+      const monthEgresos = filteredEgresos.filter(e => {
         const ed = new Date(e.fecha)
         return ed.getMonth() === d.getMonth() && ed.getFullYear() === d.getFullYear()
       })
+      
       const ingresos = monthIngresos.reduce((sum, i) => sum + i.monto, 0)
       const egresos = monthEgresos.reduce((sum, e) => sum + e.monto, 0)
       const saldoMes = ingresos - egresos
@@ -127,7 +153,7 @@ export default function Finanzas() {
       })
     }
     return balances
-  }, [finanzasIngresos, finanzasEgresos])
+  }, [finanzasIngresos, finanzasEgresos, filterCategoria])
 
   const handleSubmit = (e) => {
     e.preventDefault()
