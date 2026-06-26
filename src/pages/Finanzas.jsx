@@ -42,11 +42,21 @@ export default function Finanzas() {
   }, [finanzasIngresos, currentMonth, currentYear])
 
   const egresosMes = useMemo(() => {
-    return finanzasEgresos.filter(e => {
+    const egresosVariables = finanzasEgresos.filter(e => {
       const d = new Date(e.fecha)
       return d.getMonth() === currentMonth && d.getFullYear() === currentYear
     })
-  }, [finanzasEgresos, currentMonth, currentYear])
+    // Include gastos fijos (fixed expenses) as monthly recurring expenses
+    const gastosFijosMensual = gastosFijos.reduce((sum, g) => sum + g.monto_mensual, 0)
+    return [...egresosVariables, ...gastosFijos.map(g => ({
+      ...g,
+      monto: g.monto_mensual,
+      concepto: g.nombre,
+      categoria: g.categoria,
+      fecha: new Date(currentYear, currentMonth, 1).toISOString().split('T')[0],
+      tipo: 'Gasto Fijo'
+    }))]
+  }, [finanzasEgresos, gastosFijos, currentMonth, currentYear])
 
   const resumen = useMemo(() => {
     const totalIngresos = ingresosMes.reduce((sum, i) => sum + i.monto, 0)
@@ -60,8 +70,15 @@ export default function Finanzas() {
   const movimientosCombinados = useMemo(() => {
     const ingresos = finanzasIngresos.map(i => ({ ...i, tipo: 'Ingreso' }))
     const egresos = finanzasEgresos.map(e => ({ ...e, tipo: 'Egreso' }))
-    return [...ingresos, ...egresos].sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
-  }, [finanzasIngresos, finanzasEgresos])
+    const gastosFijosAsMovimientos = gastosFijos.map(g => ({
+      ...g,
+      monto: g.monto_mensual,
+      concepto: g.nombre,
+      categoria: g.categoria,
+      tipo: 'Gasto Fijo'
+    }))
+    return [...ingresos, ...egresos, ...gastosFijosAsMovimientos].sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+  }, [finanzasIngresos, finanzasEgresos, gastosFijos])
 
   const filteredMovimientos = useMemo(() => {
     return movimientosCombinados.filter(m => {
@@ -100,14 +117,21 @@ export default function Finanzas() {
         return ed.getMonth() === d.getMonth() && ed.getFullYear() === d.getFullYear()
       })
       
+      // Include gastos fijos (fixed expenses) for each month
+      let filteredGastosFijos = gastosFijos
+      if (filterCategoria) {
+        filteredGastosFijos = filteredGastosFijos.filter(g => g.categoria === filterCategoria)
+      }
+      const gastosFijosMensual = filteredGastosFijos.reduce((sum, g) => sum + g.monto_mensual, 0)
+      
       months.push({
         month: monthName,
         ingresos: monthIngresos.reduce((sum, i) => sum + i.monto, 0),
-        egresos: monthEgresos.reduce((sum, e) => sum + e.monto, 0)
+        egresos: monthEgresos.reduce((sum, e) => sum + e.monto, 0) + gastosFijosMensual
       })
     }
     return months
-  }, [finanzasIngresos, finanzasEgresos, filterCategoria])
+  }, [finanzasIngresos, finanzasEgresos, gastosFijos, filterCategoria])
 
   // Monthly balance table
   const balanceMensual = useMemo(() => {
@@ -139,8 +163,15 @@ export default function Finanzas() {
         return ed.getMonth() === d.getMonth() && ed.getFullYear() === d.getFullYear()
       })
       
+      // Include gastos fijos (fixed expenses) for each month
+      let filteredGastosFijos = gastosFijos
+      if (filterCategoria) {
+        filteredGastosFijos = filteredGastosFijos.filter(g => g.categoria === filterCategoria)
+      }
+      const gastosFijosMensual = filteredGastosFijos.reduce((sum, g) => sum + g.monto_mensual, 0)
+      
       const ingresos = monthIngresos.reduce((sum, i) => sum + i.monto, 0)
-      const egresos = monthEgresos.reduce((sum, e) => sum + e.monto, 0)
+      const egresos = monthEgresos.reduce((sum, e) => sum + e.monto, 0) + gastosFijosMensual
       const saldoMes = ingresos - egresos
       saldoAcumulado += saldoMes
 
@@ -153,7 +184,7 @@ export default function Finanzas() {
       })
     }
     return balances
-  }, [finanzasIngresos, finanzasEgresos, filterCategoria])
+  }, [finanzasIngresos, finanzasEgresos, gastosFijos, filterCategoria])
 
   const handleSubmit = (e) => {
     e.preventDefault()
