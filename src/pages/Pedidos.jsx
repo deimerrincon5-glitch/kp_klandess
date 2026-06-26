@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { formatCurrency, formatDate, addDaysToDate, getCurrentDateISO } from '../utils/format'
-import { Plus, Edit, Trash2, Search, ClipboardList, AlertTriangle, LayoutGrid, Table, CheckCircle, XCircle, Clock, Package } from 'lucide-react'
+import { Plus, Edit, Trash2, Search, ClipboardList, AlertTriangle, LayoutGrid, Table, CheckCircle, XCircle, Clock, Package, DollarSign, Percent } from 'lucide-react'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import { Card, CardHeader, CardTitle, CardBody } from '../components/ui/Card'
@@ -149,7 +149,7 @@ export default function Pedidos() {
   const addItem = () => {
     setFormData(prev => ({
       ...prev,
-      items: [...prev.items, { producto_id: '', nombre_producto: '', cantidad: 1, precio_unitario: 0 }]
+      items: [...prev.items, { producto_id: '', nombre_producto: '', cantidad: 1, precio_unitario: 0, descuento_pct: 0 }]
     }))
   }
 
@@ -182,7 +182,10 @@ export default function Pedidos() {
   }
 
   const calculateTotals = () => {
-    const subtotal = formData.items.reduce((sum, item) => sum + (item.cantidad * item.precio_unitario), 0)
+    const subtotal = formData.items.reduce((sum, item) => {
+      const itemSubtotal = item.cantidad * item.precio_unitario * (1 - (item.descuento_pct || 0) / 100)
+      return sum + itemSubtotal
+    }, 0)
     const iva = formData.aplicar_iva ? subtotal * 0.19 : 0
     const total = subtotal + iva
     return { subtotal, iva, total }
@@ -460,49 +463,79 @@ export default function Pedidos() {
               <h3 className="font-heading font-medium text-neutral-900 mb-3">Ítems</h3>
               <div className="space-y-2">
                 {formData.items.map((item, index) => (
-                  <div key={index} className="flex gap-2 items-start bg-neutral-50 p-3 rounded-lg">
-                    <select
-                      value={item.producto_id}
-                      onChange={(e) => updateItem(index, 'producto_id', e.target.value)}
-                      className="flex-1 px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
-                    >
-                      <option value="">Seleccionar producto...</option>
-                      {productosActivos.map(p => (
-                        <option key={p.id} value={p.id}>{p.nombre_producto} - {formatCurrency(p.precio_venta)}</option>
-                      ))}
-                    </select>
-                    <Input
-                      type="number"
-                      value={item.cantidad}
-                      onChange={(e) => updateItem(index, 'cantidad', parseFloat(e.target.value) || 0)}
-                      placeholder="Cant"
-                      min="1"
-                      className="w-20"
-                    />
-                    <Input
-                      type="number"
-                      value={item.precio_unitario}
-                      onChange={(e) => updateItem(index, 'precio_unitario', parseFloat(e.target.value) || 0)}
-                      placeholder="Precio"
-                      min="0"
-                      step="100"
-                      className="w-28"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeItem(index)}
-                      className="text-error-600 hover:text-error-800 p-1 hover:bg-error-50 rounded transition-base"
-                    >
-                      <XCircle size={18} />
-                    </button>
+                  <div key={index} className="space-y-2 bg-neutral-50 p-4 rounded-lg">
+                    <div className="flex gap-2">
+                      <select
+                        value={item.producto_id}
+                        onChange={(e) => updateItem(index, 'producto_id', e.target.value)}
+                        className="flex-1 px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-base"
+                      >
+                        <option value="">Seleccionar producto...</option>
+                        {productosActivos.map(p => (
+                          <option key={p.id} value={p.id}>{p.nombre_producto} - {formatCurrency(p.precio_venta)}</option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        onClick={() => removeItem(index)}
+                        className="text-error-600 hover:text-error-800 p-2 hover:bg-error-50 rounded transition-base"
+                        aria-label="Eliminar ítem"
+                      >
+                        <XCircle size={18} />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-xs font-medium text-neutral-600 mb-1 flex items-center gap-1">
+                          <Package size={14} />
+                          Cantidad
+                        </label>
+                        <Input
+                          type="number"
+                          value={item.cantidad}
+                          onChange={(e) => updateItem(index, 'cantidad', parseFloat(e.target.value) || 0)}
+                          min="1"
+                          placeholder="0"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-neutral-600 mb-1 flex items-center gap-1">
+                          <DollarSign size={14} />
+                          Precio Unitario
+                        </label>
+                        <Input
+                          type="number"
+                          value={item.precio_unitario}
+                          onChange={(e) => updateItem(index, 'precio_unitario', parseFloat(e.target.value) || 0)}
+                          min="0"
+                          step="100"
+                          placeholder="0"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-neutral-600 mb-1 flex items-center gap-1">
+                          <Percent size={14} />
+                          Descuento (%)
+                        </label>
+                        <Input
+                          type="number"
+                          value={item.descuento_pct || 0}
+                          onChange={(e) => updateItem(index, 'descuento_pct', parseFloat(e.target.value) || 0)}
+                          min="0"
+                          max="100"
+                          placeholder="0"
+                        />
+                      </div>
+                    </div>
                   </div>
                 ))}
                 <button
                   type="button"
                   onClick={addItem}
-                  className="text-primary-600 hover:text-primary-800 text-sm font-medium"
+                  className="text-primary-600 hover:text-primary-800 text-sm font-medium flex items-center gap-1"
                 >
-                  + Agregar ítem
+                  <Plus size={16} />
+                  Agregar ítem
                 </button>
               </div>
             </div>
